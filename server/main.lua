@@ -63,7 +63,7 @@ end
 function Paycheck:HandlePaymentThread()
     CreateThread(function()
         while not self.paused do
-            Wait(1000)
+            Wait(Config.PayTime)
             self:Pay()
         end
     end)
