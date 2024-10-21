@@ -2,6 +2,7 @@ Config = {}
 
 Config.DevMode = false -- to test when you restart script
 
+Config.PayTime = 1000
 -- this is a paycheck script that will be paying these jobs based on their grades
 -- payments are done at every minute because people can crash so its a safety measure and that's why it's not here
 
