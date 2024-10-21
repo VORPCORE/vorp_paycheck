@@ -34,7 +34,9 @@ Config.Grades = {
     -- add more to make unique payments
 }
 
+-- make unique jobs and their ranks here to get them to be paid
 Config.Jobs = {
+
     --POLICE
     BWSheriff = {                     -- job name
         payment = Config.Grades.law,
