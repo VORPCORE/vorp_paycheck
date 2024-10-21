@@ -21,7 +21,14 @@ local paycheck = {}
 
 ---@constructor
 function Paycheck:new(source, amount, mustbeonduty, isOnDuty)
-    local properties = { source = source, amount = amount, mustbeonduty = mustbeonduty, paused = true, IsOnDuty = isOnDuty or false }
+    local properties = {
+        source = source,
+        amount = amount,
+        mustbeonduty = mustbeonduty,
+        paused = true,
+        IsOnDuty =
+            isOnDuty or false
+    }
     return setmetatable(properties, Paycheck)
 end
 
@@ -36,7 +43,7 @@ function Paycheck:Pay()
     if not user then return end
 
     local character <const> = user.getUsedCharacter
-    character:addCurrency(0, self.amount)
+    character.addCurrency(0, self.amount)
 end
 
 function Paycheck:Pause()
@@ -85,7 +92,6 @@ local function addUserToPaycheck(source, character)
     if not statebagKey then return end
 
     AddStateBagChangeHandler(statebagKey, ('player:%s'):format(source), function(bagName, _, value, _, replicated)
-        print(bagName, _, value, _, replicated)
         if not replicated then return end
 
         repeat Wait(0) until GetPlayerFromStateBagName(bagName) ~= 0
@@ -94,10 +100,8 @@ local function addUserToPaycheck(source, character)
         if not paycheck[_source] then return end -- player is not in paycheck possible cheater
 
         if value then
-            print("player is on duty", paycheck[source].amount)
             paycheck[_source]:Resume()
         else
-            print("player is off duty")
             paycheck[_source]:Pause()
         end
     end)
