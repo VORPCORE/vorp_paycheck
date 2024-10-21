@@ -21,14 +21,8 @@ local paycheck = {}
 
 ---@constructor
 function Paycheck:new(source, amount, mustbeonduty, isOnDuty)
-    local properties = {
-        source = source,
-        amount = amount,
-        mustbeonduty = mustbeonduty,
-        paused = true,
-        IsOnDuty =
-            isOnDuty or false
-    }
+    local properties = { source = source, amount = amount, mustbeonduty = mustbeonduty, paused = true, IsOnDuty =
+    isOnDuty or false }
     return setmetatable(properties, Paycheck)
 end
 
@@ -69,7 +63,7 @@ end
 function Paycheck:HandlePaymentThread()
     CreateThread(function()
         while not self.paused do
-            Wait(60000)
+            Wait(1000)
             self:Pay()
         end
     end)
@@ -97,7 +91,7 @@ local function addUserToPaycheck(source, character)
         repeat Wait(0) until GetPlayerFromStateBagName(bagName) ~= 0
         local _source <const> = GetPlayerFromStateBagName(bagName)
 
-        if not paycheck[_source] then return end -- player is not in paycheck possible cheater
+        if not paycheck[_source] then return end -- security check
 
         if value then
             paycheck[_source]:Resume()
@@ -107,13 +101,11 @@ local function addUserToPaycheck(source, character)
     end)
 end
 
---* player selected character check it can have a payment
 AddEventHandler('vorp:SelectedCharacter', function(source, character)
-    if paycheck[source] then return end -- player already has a paycheck
+    if paycheck[source] then return end
     addUserToPaycheck(source, character)
 end)
 
---* handle on job or grade change
 AddEventHandler('vorp:playerJobChange', function(source, newjob, oldjob)
     SetTimeout(1000, function()
         if paycheck[source] then
@@ -126,9 +118,8 @@ AddEventHandler('vorp:playerJobChange', function(source, newjob, oldjob)
             local amount <const> = job.payment[character.grade]
             if not amount then return end
 
-            paycheck[source]:ChangeAmount(amount) -- job changed so we need to update the paycheck amount too
+            paycheck[source]:ChangeAmount(amount)
         else
-            -- player doesnt exist in paychecks check if they need a paycheck
             local user <const> = Core.getUser(source)
             if not user then return end
             local character <const> = user.getUsedCharacter
@@ -137,7 +128,6 @@ AddEventHandler('vorp:playerJobChange', function(source, newjob, oldjob)
     end)
 end)
 
---* player dropped
 AddEventHandler('playerDropped', function()
     local _source <const> = source
 
@@ -147,7 +137,6 @@ AddEventHandler('playerDropped', function()
     end
 end)
 
---* resource start dev mode
 AddEventHandler('onResourceStart', function(resource)
     if resource ~= GetCurrentResourceName() then return end
     if not Config.DevMode then return end
