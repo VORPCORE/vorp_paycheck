@@ -6,7 +6,6 @@ author 'VORP @outsider'
 description 'Paycheck System'
 name 'vorp_paycheck'
 lua54 'yes'
-
 server_only 'yes'
 
 server_scripts {
@@ -15,3 +14,6 @@ server_scripts {
 }
 
 version '0.1'
+vorp_checker 'yes'
+vorp_name '^4Resource version Check^3'
+vorp_github 'https://github.com/VORPCORE/vorp_paycheck'
