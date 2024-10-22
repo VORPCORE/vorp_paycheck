@@ -15,7 +15,20 @@ Config.DevMode = false -- to test when you restart script
         return true
     end,
 
+    -- if you want to add other currencies then add it like this in the Config.Jobs table for each job
+    currency = 0                  -- 0 is dollars, 1 is gold 2 is rol currency
 ]]
+
+
+-- if player has this group they will be paid for bing in the server
+Config.Groups = {
+    Special = {         -- group name
+        payment = 0.10, -- players will be paid 0.10 dollars per minute if they have this group
+        currency = 0,   -- 0 is dollars, 1 is gold 2 is rol currency by default 0 is the currency , remove this if you want to use the default
+    },
+    -- add more here
+}
+
 
 -- this is the payment for each grade allows you to make unique payments for each grade and without code repetition
 Config.Grades = {
@@ -42,6 +55,7 @@ Config.Jobs = {
         payment = Config.Grades.law,
         mustbeonduty = true,          -- vorp_police works for this so leave true if you are using vorp police, other wise set to false unless you have scripts using statebags to go on duty
         statebagKey = 'isPoliceDuty', -- this is the statebag key for the job this already exists in vorp_police, if you use other scripts then change it
+        currency = 0,                 -- 0 is dollars, 1 is gold 2 is rol currency by default 0 is the currency , remove this if you want to use the default
     },
     RhoSheriff = {
         payment = Config.Grades.law,
@@ -68,7 +82,6 @@ Config.Jobs = {
         mustbeonduty = true,
         statebagKey = 'isPoliceDuty',
     },
-
     --MEDICS
     doctor = {
         payment = Config.Grades.medic,

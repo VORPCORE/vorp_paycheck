@@ -1,8 +1,8 @@
 ---@class Paycheck
 ---@field private amount number
----@field private mustbeonduty boolean
 ---@field private paused boolean
 ---@field private source number
+---@field private currency number
 ---@field private Pay fun(self: Paycheck)
 ---@field private Pause fun(self: Paycheck)
 ---@field private Resume fun(self: Paycheck)
@@ -18,11 +18,11 @@ end
 
 local Core = exports.vorp_core:GetCore()
 local paycheck = {}
+local paygroup = {}
 
 ---@constructor
-function Paycheck:new(source, amount, mustbeonduty, isOnDuty)
-    local properties = { source = source, amount = amount, mustbeonduty = mustbeonduty, paused = true, IsOnDuty =
-    isOnDuty or false }
+function Paycheck:new(source, amount, isOnDuty, currency)
+    local properties = { source = source, amount = amount, paused = true, IsOnDuty = isOnDuty or false, currency = currency }
     return setmetatable(properties, Paycheck)
 end
 
@@ -76,7 +76,7 @@ local function addUserToPaycheck(source, character)
     local amount <const> = job.payment[character.jobGrade]
     if not amount then return end
 
-    paycheck[source] = Paycheck:new(source, amount, job.mustbeonduty, job.IsOnDuty)
+    paycheck[source] = Paycheck:new(source, amount, job.IsOnDuty, job.currency)
 
     if not job.mustbeonduty then
         return paycheck[source]:HandlePaymentThread()
@@ -103,6 +103,14 @@ end
 
 AddEventHandler('vorp:SelectedCharacter', function(source, character)
     if paycheck[source] then return end
+    if paygroup[source] then return end
+
+    local group <const> = Config.Groups[character.group]
+    if group then
+        paygroup[source] = Paycheck:new(source, group.amount, false, group.currency)
+        paygroup[source]:HandlePaymentThread()
+    end
+
     addUserToPaycheck(source, character)
 end)
 
@@ -110,7 +118,12 @@ AddEventHandler('vorp:playerJobChange', function(source, newjob, oldjob)
     SetTimeout(1000, function()
         if paycheck[source] then
             local job <const> = Config.Jobs[newjob]
-            if not job then return end
+            if not job then
+                paycheck[source]:Destroy()
+                paycheck[source] = nil
+                return
+            end
+
             local user <const> = Core.getUser(source)
             if not user then return end
 
@@ -128,12 +141,38 @@ AddEventHandler('vorp:playerJobChange', function(source, newjob, oldjob)
     end)
 end)
 
+
+AddEventHandler('vorp:playerGroupChange', function(source, newgroup, oldgroup)
+    SetTimeout(1000, function()
+        if paygroup[source] then
+            local group <const> = Config.Groups[newgroup]
+            if not group then
+                paygroup[source]:Destroy()
+                paygroup[source] = nil
+                return
+            end
+            paygroup[source]:ChangeAmount(group.amount)
+        else
+            local group <const> = Config.Groups[newgroup]
+            if not group then return end
+
+            paygroup[source] = Paycheck:new(source, group.amount, false, group.currency)
+            paygroup[source]:HandlePaymentThread()
+        end
+    end)
+end)
+
 AddEventHandler('playerDropped', function()
     local _source <const> = source
 
     if paycheck[_source] then
         paycheck[_source]:Destroy()
         paycheck[_source] = nil
+    end
+
+    if paygroup[_source] then
+        paygroup[_source]:Destroy()
+        paygroup[_source] = nil
     end
 end)
 
@@ -146,5 +185,11 @@ AddEventHandler('onResourceStart', function(resource)
         if not user then return end
         local character <const> = user.getUsedCharacter
         addUserToPaycheck(tonumber(player), character)
+
+        local group <const> = Config.Groups[character.group]
+        if group then
+            paygroup[tonumber(player)] = Paycheck:new(tonumber(player), group.amount, false, group.currency)
+            paygroup[tonumber(player)]:HandlePaymentThread()
+        end
     end
 end)
