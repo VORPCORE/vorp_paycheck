@@ -102,12 +102,11 @@ local function addUserToPaycheck(source, character)
 end
 
 AddEventHandler('vorp:SelectedCharacter', function(source, character)
-    if paycheck[source] then return end
-    if paygroup[source] then return end
+    if paycheck[source] or paygroup[source] then return end
 
     local group <const> = Config.Groups[character.group]
     if group then
-        paygroup[source] = Paycheck:new(source, group.amount, false, group.currency)
+        paygroup[source] = Paycheck:new(source, group.payment, false, group.currency)
         paygroup[source]:HandlePaymentThread()
     end
 
