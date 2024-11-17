@@ -179,16 +179,19 @@ AddEventHandler('onResourceStart', function(resource)
     if resource ~= GetCurrentResourceName() then return end
     if not Config.DevMode then return end
 
+    print("^1 dev mode is on ^7 dont use it while on live server")
+
     for _, player in ipairs(GetPlayers()) do
         local user <const> = Core.getUser(tonumber(player))
         if not user then return end
+
         local character <const> = user.getUsedCharacter
         addUserToPaycheck(tonumber(player), character)
 
         local group <const> = Config.Groups[character.group]
-        if group then
-            paygroup[tonumber(player)] = Paycheck:new(tonumber(player), group.amount, false, group.currency)
-            paygroup[tonumber(player)]:HandlePaymentThread()
-        end
+        if not group then return end
+
+        paygroup[tonumber(player)] = Paycheck:new(tonumber(player), group.payment, false, group.currency)
+        paygroup[tonumber(player)]:HandlePaymentThread()
     end
 end)
