@@ -63,7 +63,7 @@ end
 function Paycheck:HandlePaymentThread()
     CreateThread(function()
         while not self.paused do
-            Wait(1000)
+            Wait(60 * 1000) -- 1 minute
             self:Pay()
         end
     end)
@@ -107,7 +107,7 @@ AddEventHandler('vorp:SelectedCharacter', function(source, character)
     local group <const> = Config.Groups[character.group]
     if group then
         paygroup[source] = Paycheck:new(source, group.payment, false, group.currency)
-        paygroup[source]:HandlePaymentThread()
+        paygroup[source]:Resume()
     end
 
     addUserToPaycheck(source, character)
@@ -156,7 +156,7 @@ AddEventHandler('vorp:playerGroupChange', function(source, newgroup, oldgroup)
             if not group then return end
 
             paygroup[source] = Paycheck:new(source, group.amount, false, group.currency)
-            paygroup[source]:HandlePaymentThread()
+            paygroup[source]:Resume()
         end
     end)
 end)
@@ -192,6 +192,6 @@ AddEventHandler('onResourceStart', function(resource)
         if not group then return end
 
         paygroup[tonumber(player)] = Paycheck:new(tonumber(player), group.payment, false, group.currency)
-        paygroup[tonumber(player)]:HandlePaymentThread()
+        paygroup[tonumber(player)]:Resume()
     end
 end)
