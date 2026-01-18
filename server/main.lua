@@ -31,7 +31,7 @@ function Paycheck:Pay()
     local isInSession <const> = Player(self.source).state.IsInSession
     if not isInSession then return end
 
-    if self.IsOnDuty and not self:IsOnDuty(self.source) then return end
+    if self.IsOnDuty and not self.IsOnDuty(self.source) then return end
 
     local user <const> = Core.getUser(self.source)
     if not user then return end
@@ -79,7 +79,7 @@ local function addUserToPaycheck(source, character)
     paycheck[source] = Paycheck:new(source, amount, job.IsOnDuty, job.currency)
 
     if not job.mustbeonduty then
-        return paycheck[source]:HandlePaymentThread()
+        return paycheck[source]:Resume()
     end
 
     local statebagKey <const> = job.statebagKey
@@ -127,7 +127,7 @@ AddEventHandler('vorp:playerJobChange', function(source, newjob, oldjob)
             if not user then return end
 
             local character <const> = user.getUsedCharacter
-            local amount <const> = job.payment[character.grade]
+            local amount <const> = job.payment[character.jobGrade]
             if not amount then return end
 
             paycheck[source]:ChangeAmount(amount)
